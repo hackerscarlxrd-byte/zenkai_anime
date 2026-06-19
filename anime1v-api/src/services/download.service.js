@@ -14,14 +14,22 @@ let puppeteerBrowser = null;
 
 async function getPuppeteerBrowser() {
   if (!puppeteerBrowser) {
-    const puppeteer = require("puppeteer");
+    const puppeteer = require("puppeteer-core");
+    const chromium = require("@sparticuz/chromium");
+
     const options = {
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+      ignoreHTTPSErrors: true,
     };
+
     if (process.env.PUPPETEER_EXECUTABLE_PATH) {
       options.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    } else {
+      options.executablePath = await chromium.executablePath();
     }
+
     puppeteerBrowser = await puppeteer.launch(options);
   }
   return puppeteerBrowser;
