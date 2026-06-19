@@ -9,10 +9,14 @@ let puppeteerBrowser = null;
 async function getPuppeteerBrowser() {
   if (!puppeteerBrowser) {
     const puppeteer = require("puppeteer");
-    puppeteerBrowser = await puppeteer.launch({
+    const options = {
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+    };
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      options.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+    puppeteerBrowser = await puppeteer.launch(options);
   }
   return puppeteerBrowser;
 }
@@ -66,16 +70,23 @@ async function fetchHtml(url) {
       headers: HTTP_HEADERS,
       maxRedirects: 5,
       validateStatus: (status) => status >= 200 && status < 400,
-      timeout,
     });
-    return response.data;
+    
+    // Check if it's a Cloudflare challenge despite returning 200 OK
+    const html = response.data;
+    if (typeof html === 'string') {
+      if (html.includes('Just a moment...') || html.includes('Cloudflare') || html.includes('Ray ID:')) {
+        throw new Error('Cloudflare challenge detected');
+      }
+    }
+    return html;
   } catch (error) {
     // If regular fetch fails, try with puppeteer
     try {
       console.log("fetchHtml: trying with puppeteer for", url);
       return await fetchHtmlWithPuppeteer(url);
     } catch (puppeteerError) {
-      throw new ApiError(500, "No se pudo obtener contenido desde AnimeFLV", error.message);
+      throw new ApiError(500, "No se pudo obtener contenido desde AnimeFLV", puppeteerError.message);
     }
   }
 }

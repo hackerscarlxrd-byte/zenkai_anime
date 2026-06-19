@@ -15,10 +15,14 @@ let puppeteerBrowser = null;
 async function getPuppeteerBrowser() {
   if (!puppeteerBrowser) {
     const puppeteer = require("puppeteer");
-    puppeteerBrowser = await puppeteer.launch({
+    const options = {
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+    };
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      options.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+    puppeteerBrowser = await puppeteer.launch(options);
   }
   return puppeteerBrowser;
 }
