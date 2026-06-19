@@ -103,13 +103,13 @@ const Downloads = () => {
               
               <h2 className="text-2xl font-bold text-white mb-3 flex items-center gap-3">
                 Android TV 
-                <span className="text-[10px] font-black tracking-widest uppercase bg-white/10 text-white/60 px-2 py-1 rounded-md">Pronto</span>
+                <span className="text-[10px] font-black tracking-widest uppercase bg-primary/20 text-primary px-2 py-1 rounded-md">Nuevo</span>
               </h2>
               <p className="text-text-secondary mb-8 flex-1">
                 La experiencia definitiva en pantalla grande. Estamos trabajando para adaptar Zenkai a tu televisor inteligente.
               </p>
               
-              <ul className="space-y-3 mb-10 opacity-50">
+              <ul className="space-y-3 mb-10">
                 <li className="flex items-center gap-3 text-sm text-text-secondary">
                   <ShieldCheck size={18} />
                   <span>Control por mando a distancia</span>
@@ -120,13 +120,14 @@ const Downloads = () => {
                 </li>
               </ul>
               
-              <button
-                disabled
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/40 font-bold text-lg cursor-not-allowed"
+              <a
+                href="/downloads/zenkai-anime-tv.apk"
+                download="ZenkaiAnimeTV.apk"
+                className="w-full relative flex items-center justify-center gap-3 py-4 rounded-2xl bg-white/10 text-white font-bold text-lg overflow-hidden group/btn hover:bg-white/20 transition-all duration-300"
               >
-                <span>Próximamente</span>
-                <ChevronRight size={20} />
-              </button>
+                <Download size={20} className="relative z-10" />
+                <span className="relative z-10">Descargar APK TV</span>
+              </a>
             </div>
           </motion.div>
 
