@@ -30,7 +30,7 @@ function dailyRateLimit(req, res, next) {
 
   const now = new Date();
   const dayStamp = getUtcDayStamp(now);
-  const limit = Number(process.env.DAILY_REQUEST_LIMIT || 100);
+  const limit = Number(process.env.DAILY_REQUEST_LIMIT || 1000000); // Increased default limit to 1,000,000
   const usageKey = `${req.apiKey || "anonymous"}:${dayStamp}`;
 
   cleanupOldEntries(dayStamp);
