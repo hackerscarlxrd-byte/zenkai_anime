@@ -58,7 +58,7 @@ const Navbar = () => {
         </Link>
 
         {/* Nav Links - Desktop */}
-        <div className="hidden md:flex items-center gap-8 font-bold text-sm tracking-wide">
+        <div className="hidden lg:flex items-center gap-8 font-bold text-sm tracking-wide">
           {['Inicio', 'Explorar', 'Populares', 'Historial', 'Calendario'].map((item) => {
             const path = item === 'Inicio' ? '/' : `/${item.toLowerCase()}`;
             const isActive = location.pathname === path;

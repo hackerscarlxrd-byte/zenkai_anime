@@ -112,7 +112,7 @@ const MainLayout = () => {
       <Footer />
 
       {/* Mobile Bottom Navigation Improved */}
-      <nav className="lg:hidden fixed bottom-8 inset-x-6 h-20 bg-background-secondary/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] z-[100] shadow-2xl shadow-black/80 overflow-hidden">
+      <nav className="lg:hidden landscape:hidden fixed bottom-8 inset-x-6 h-20 bg-background-secondary/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] z-[100] shadow-2xl shadow-black/80 overflow-hidden">
         <div className="flex items-center justify-start gap-1 h-full overflow-x-auto no-scrollbar snap-x snap-mandatory px-4">
         {[
           { to: '/', icon: Home, label: 'Inicio' },

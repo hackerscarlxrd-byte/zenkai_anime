@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { animeService } from '../services/animeService';
 import { useAnimeStore } from '../store/useAnimeStore';
@@ -48,32 +48,46 @@ const Watch = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [id, episodeUrl]);
 
-  // ── Native Screen Orientation ─────────────────────────────────────────────
+  const location = useLocation();
+  const [hasStarted, setHasStarted] = useState(location.state?.autoPlay || false);
+
+  // Unlock orientation ONLY on unmount
   useEffect(() => {
-    const lockLandscape = async () => {
+    return () => {
       if (Capacitor.isNativePlatform()) {
         try {
-          await ScreenOrientation.lock({ orientation: 'landscape' });
-        } catch (e) {
-          console.warn('ScreenOrientation lock failed:', e);
-        }
-      }
-    };
-    const unlockOrientation = async () => {
-      if (Capacitor.isNativePlatform()) {
-        try {
-          await ScreenOrientation.unlock();
+          ScreenOrientation.unlock();
         } catch (e) {
           console.warn('ScreenOrientation unlock failed:', e);
         }
       }
     };
-
-    lockLandscape();
-    return () => {
-      unlockOrientation();
-    };
   }, []);
+
+  useEffect(() => {
+    if (location.state?.autoPlay) {
+      setHasStarted(true);
+      if (Capacitor.isNativePlatform()) {
+        ScreenOrientation.lock({ orientation: 'landscape' }).catch(console.warn);
+      }
+    } else {
+      setHasStarted(false);
+      if (Capacitor.isNativePlatform()) {
+        ScreenOrientation.unlock().catch(console.warn);
+      }
+    }
+  }, [episodeUrl, location.state]);
+
+  const handleStartPlay = async () => {
+    setHasStarted(true);
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await ScreenOrientation.lock({ orientation: 'landscape' });
+      } catch (e) {
+        console.warn('ScreenOrientation lock failed:', e);
+      }
+    }
+  };
 
   // ── UI State ──────────────────────────────────────────────────────────────
   const [language,       setLanguage]      = useState('sub');
@@ -135,7 +149,7 @@ const Watch = () => {
     setIframeLoaded(false);
     setAutoNextCount(null);
     setServerIdx(0);
-    navigate(`/watch/${id}?url=${encodeURIComponent(url)}&anime=${encodeURIComponent(animeUrl)}`);
+    navigate(`/watch/${id}?url=${encodeURIComponent(url)}&anime=${encodeURIComponent(animeUrl)}`, { state: { autoPlay: true } });
   }, [animeUrl, id, navigate]);
 
   // ── History ───────────────────────────────────────────────────────────────
@@ -317,6 +331,28 @@ const Watch = () => {
                       >
                         Volver al Anime
                       </button>
+                    </div>
+                  );
+                }
+                if (!hasStarted) {
+                  return (
+                    <div 
+                      className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer group z-10 bg-black"
+                      onClick={handleStartPlay}
+                    >
+                      <img 
+                        src={anime?.backdrop || anime?.image || IMG_FALLBACK} 
+                        className="absolute inset-0 w-full h-full object-cover opacity-40 transition-transform duration-700 group-hover:scale-105" 
+                        alt="Play Video"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      
+                      <div className="w-20 h-20 md:w-24 md:h-24 bg-primary/90 backdrop-blur-md rounded-full flex items-center justify-center relative z-20 shadow-[0_0_40px_rgba(var(--color-primary),0.5)] scale-95 group-hover:scale-110 transition-all duration-300">
+                        <Play fill="white" size={36} className="ml-2 text-white" />
+                      </div>
+                      <p className="relative z-20 mt-6 text-white font-black italic uppercase tracking-widest text-sm md:text-base opacity-70 group-hover:opacity-100 transition-opacity">
+                        Reproducir Episodio {episodeData?.episode}
+                      </p>
                     </div>
                   );
                 }
