@@ -31,18 +31,26 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-black text-white mb-6 uppercase tracking-widest text-[10px]">Navegación</h4>
             <ul className="space-y-4 font-bold text-xs text-text-secondary">
-              {['Inicio', 'Explorar', 'Populares', 'Calendario', 'Mi Lista'].map(item => (
-                <li key={item}><Link to="#" className="hover:text-primary transition-colors">{item}</Link></li>
-              ))}
+              {['Inicio', 'Explorar', 'Populares', 'Calendario', 'Mi Lista'].map(item => {
+                const path = item === 'Inicio' ? '/' : 
+                             item === 'Explorar' ? '/explorar' : 
+                             item === 'Populares' ? '/populares' : 
+                             item === 'Calendario' ? '/calendario' : '/mi-lista';
+                return <li key={item}><Link to={path} className="hover:text-primary transition-colors">{item}</Link></li>
+              })}
             </ul>
           </div>
 
           <div>
             <h4 className="font-display font-black text-white mb-6 uppercase tracking-widest text-[10px]">Soporte</h4>
             <ul className="space-y-4 font-bold text-xs text-text-secondary">
-              {['Preguntas Frecuentes', 'Términos de Uso', 'Política de Privacidad', 'Contacto', 'DMCA'].map(item => (
-                <li key={item}><Link to="#" className="hover:text-primary transition-colors">{item}</Link></li>
-              ))}
+              {['Preguntas Frecuentes', 'Términos de Uso', 'Política de Privacidad', 'Contacto', 'DMCA'].map(item => {
+                const path = item === 'Preguntas Frecuentes' ? '/faq' : 
+                             item === 'Términos de Uso' ? '/terminos' : 
+                             item === 'Política de Privacidad' ? '/privacidad' : 
+                             item === 'Contacto' ? '/contacto' : '/dmca';
+                return <li key={item}><Link to={path} className="hover:text-primary transition-colors">{item}</Link></li>
+              })}
             </ul>
           </div>
 

@@ -134,8 +134,8 @@ const Watch = () => {
   useEffect(() => {
     if (!episodeData?.variants) return;
     let targetLang = language;
-    const hasDub = episodeData.variants.DUB || episodeData.variants.LAT;
-    const hasSub = episodeData.variants.SUB;
+    const hasDub = episodeData?.servers?.dub?.length > 0 || episodeData?.servers?.DUB?.length > 0;
+    const hasSub = episodeData?.servers?.sub?.length > 0 || episodeData?.servers?.SUB?.length > 0;
     
     if (hasDub && !hasSub && language === 'sub') {
       targetLang = 'dub';
@@ -547,7 +547,7 @@ const Watch = () => {
 
                 {/* Language toggle */}
                 <div className="flex gap-2 p-1.5 bg-background-main/50 rounded-2xl border border-white/5">
-                  {!!episodeData?.variants?.SUB && (
+                  {(episodeData?.servers?.sub?.length > 0 || episodeData?.servers?.SUB?.length > 0) && (
                     <button onClick={() => setLanguage('sub')}
                       className={`flex items-center gap-2 px-5 py-3 rounded-xl font-black text-[10px] transition-all uppercase tracking-widest ${
                         language === 'sub' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-text-secondary hover:text-white'
@@ -555,7 +555,7 @@ const Watch = () => {
                       <Globe size={16} /> SUB
                     </button>
                   )}
-                  {!!(episodeData?.variants?.DUB || episodeData?.variants?.LAT) && (
+                  {(episodeData?.servers?.dub?.length > 0 || episodeData?.servers?.DUB?.length > 0 || episodeData?.servers?.lat?.length > 0) && (
                     <button onClick={() => setLanguage('dub')}
                       className={`flex items-center gap-2 px-5 py-3 rounded-xl font-black text-[10px] transition-all uppercase tracking-widest ${
                         language === 'dub' ? 'bg-accent text-background-main shadow-lg shadow-accent/20' : 'text-text-secondary hover:text-white'

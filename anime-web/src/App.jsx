@@ -17,6 +17,11 @@ const MyList = lazy(() => import('./pages/MyList'));
 const ProfileStats = lazy(() => import('./pages/ProfileStats'));
 const Calendar = lazy(() => import('./pages/Calendar'));
 const Downloads = lazy(() => import('./pages/Downloads'));
+const Terms = lazy(() => import('./pages/legal/Terms'));
+const Privacy = lazy(() => import('./pages/legal/Privacy'));
+const FAQ = lazy(() => import('./pages/legal/FAQ'));
+const Contact = lazy(() => import('./pages/legal/Contact'));
+const DMCA = lazy(() => import('./pages/legal/DMCA'));
 
 import { GlobalLoader, PageLoader } from './components/ui/GlobalLoader';
 
@@ -76,6 +81,13 @@ function App() {
             <Route path="mi-lista" element={<MyList />} />
             <Route path="perfil" element={<ProfileStats />} />
             <Route path="descargas" element={<Downloads />} />
+            
+            {/* Legal / Support Routes */}
+            <Route path="terminos" element={<Terms />} />
+            <Route path="privacidad" element={<Privacy />} />
+            <Route path="faq" element={<FAQ />} />
+            <Route path="contacto" element={<Contact />} />
+            <Route path="dmca" element={<DMCA />} />
             
             {/* Fallback for other routes */}
             <Route path="*" element={
