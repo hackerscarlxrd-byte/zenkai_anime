@@ -33,9 +33,12 @@ const LoginModal = ({ isOpen, onClose }) => {
       return;
     }
     setError('');
-    setLoading(true);
+    
+    // ATENCIÓN: No usar setLoading(true) aquí porque rompe la cadena del evento de click,
+    // lo que hace que los navegadores bloqueen la ventana emergente (PopupBlocker).
     try {
       const result = await signInWithPopup(auth, provider);
+      setLoading(true);
       setUser({
         uid: result.user.uid,
         email: result.user.email,
@@ -45,7 +48,13 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (err) {
       console.error(err);
-      setError(err.message.includes('auth/') ? 'Error de autenticación' : err.message);
+      if (err.code === 'auth/popup-blocked') {
+        setError('Ventana emergente bloqueada por el navegador. Permite las ventanas emergentes e inténtalo de nuevo.');
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError('Cancelaste el inicio de sesión.');
+      } else {
+        setError(err.message.includes('auth/') ? 'Error de autenticación' : err.message);
+      }
     } finally {
       setLoading(false);
     }

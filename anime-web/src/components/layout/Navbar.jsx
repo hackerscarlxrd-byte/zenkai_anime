@@ -7,57 +7,23 @@ import SearchDropdown from '../ui/SearchDropdown';
 import ThemeSelector from '../ui/ThemeSelector';
 import NotificationPanel from '../ui/NotificationPanel';
 import LoginModal from '../auth/LoginModal';
+import LogoutModal from '../auth/LogoutModal';
 import { useAnimeStore } from '../../store/useAnimeStore';
 import { auth, isFirebaseConfigured } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
-import { sileo } from 'sileo';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const searchInputRef = useRef(null);
   
   const { user, setUser, clearAllData } = useAnimeStore();
 
   const handleLogout = () => {
-    sileo.action({
-      title: "¿Cerrar sesión?",
-      description: (
-        <div>
-          <span className="block mb-4 text-center text-gray-500">Pasarás a modo invitado</span>
-          <div 
-            onClick={() => sileo.clear()} 
-            role="button"
-            tabIndex={0}
-            className="w-full mt-2 py-2.5 px-4 rounded-xl border border-gray-300 text-gray-600 font-semibold text-center hover:bg-gray-100 transition-all active:scale-95 cursor-pointer"
-          >
-            Cancelar
-          </div>
-        </div>
-      ),
-      styles: {
-        title: 'text-white font-bold',
-        description: 'text-gray-400',
-        button: 'bg-primary-600 text-white hover:bg-primary-500 transition-colors'
-      },
-      button: {
-        title: "Confirmar",
-        onClick: async () => {
-          try {
-            if (isFirebaseConfigured) {
-              await signOut(auth);
-            }
-            setUser(null);
-            if (clearAllData) clearAllData();
-            sileo.success({ title: "Sesión cerrada", description: "Ahora estás en modo invitado" });
-          } catch (error) {
-            sileo.error({ title: "Error", description: "No se pudo cerrar sesión" });
-          }
-        }
-      }
-    });
+    setShowLogoutModal(true);
   };
   const navigate = useNavigate();
   const location = useLocation();
@@ -209,7 +175,9 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Modals */}
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <LogoutModal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} />
     </nav>
   );
 };
