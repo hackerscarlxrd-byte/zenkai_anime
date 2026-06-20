@@ -26,13 +26,15 @@ const Navbar = () => {
       title: "¿Cerrar sesión?",
       description: (
         <div>
-          <span className="block mb-4 text-center">Pasarás a modo invitado</span>
-          <button 
+          <span className="block mb-4 text-center text-gray-500">Pasarás a modo invitado</span>
+          <div 
             onClick={() => sileo.clear()} 
-            className="w-full mt-2 py-2.5 px-4 rounded-xl border border-white/20 text-white font-semibold hover:bg-white/10 transition-all active:scale-95"
+            role="button"
+            tabIndex={0}
+            className="w-full mt-2 py-2.5 px-4 rounded-xl border border-gray-300 text-gray-600 font-semibold text-center hover:bg-gray-100 transition-all active:scale-95 cursor-pointer"
           >
             Cancelar
-          </button>
+          </div>
         </div>
       ),
       styles: {
