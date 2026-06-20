@@ -111,7 +111,8 @@ const MainLayout = () => {
       <Footer />
 
       {/* Mobile Bottom Navigation Improved */}
-      <nav className="lg:hidden fixed bottom-8 inset-x-6 h-20 bg-background-secondary/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] z-[100] flex items-center justify-around px-6 shadow-2xl shadow-black/80">
+      <nav className="lg:hidden fixed bottom-8 inset-x-6 h-20 bg-background-secondary/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] z-[100] shadow-2xl shadow-black/80 overflow-hidden">
+        <div className="flex items-center gap-2 h-full overflow-x-auto no-scrollbar snap-x snap-mandatory px-4">
         {[
           { to: '/', icon: Home, label: 'Inicio' },
           { to: '/explorar', icon: Compass, label: 'Explorar' },
@@ -125,7 +126,7 @@ const MainLayout = () => {
             <Link 
               key={to} 
               to={to} 
-              className={`relative flex flex-col items-center gap-1.5 transition-all duration-500 ${
+              className={`relative flex flex-col items-center justify-center gap-1.5 transition-all duration-500 w-[60px] shrink-0 snap-center ${
                 active ? 'text-primary' : 'text-white/40 hover:text-white'
               }`}
             >
@@ -136,10 +137,11 @@ const MainLayout = () => {
                 />
               )}
               <Icon size={active ? 26 : 22} className={`transition-all duration-500 ${active ? 'fill-primary/10' : ''}`} />
-              <span className="text-[8px] font-black uppercase tracking-[0.2em]">{label}</span>
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] whitespace-nowrap">{label}</span>
             </Link>
           );
         })}
+        </div>
       </nav>
     </div>
   );
