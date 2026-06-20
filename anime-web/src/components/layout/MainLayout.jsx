@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, Compass, TrendingUp, Bookmark, Clock, User, ChevronRight, Calendar, Smartphone } from 'lucide-react';
+import { Home, Compass, TrendingUp, Bookmark, BookmarkPlus, Download, Clock, User, ChevronRight, Calendar, Smartphone } from 'lucide-react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import InteractiveBackdrop from './InteractiveBackdrop';
