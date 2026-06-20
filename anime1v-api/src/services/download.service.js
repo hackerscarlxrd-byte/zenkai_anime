@@ -15,7 +15,8 @@ let puppeteerBrowser = null;
 async function getPuppeteerBrowser() {
   if (!puppeteerBrowser) {
     const puppeteerCore = require("puppeteer-core");
-    const puppeteer = require("puppeteer-extra");
+    const { addExtra } = require("puppeteer-extra");
+    const puppeteer = addExtra(puppeteerCore);
     const StealthPlugin = require("puppeteer-extra-plugin-stealth");
     puppeteer.use(StealthPlugin());
     const chromium = require("@sparticuz/chromium");
