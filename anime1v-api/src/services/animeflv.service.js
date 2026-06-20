@@ -8,7 +8,10 @@ let puppeteerBrowser = null;
 
 async function getPuppeteerBrowser() {
   if (!puppeteerBrowser) {
-    const puppeteer = require("puppeteer-core");
+    const puppeteerCore = require("puppeteer-core");
+    const puppeteer = require("puppeteer-extra");
+    const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+    puppeteer.use(StealthPlugin());
     const chromium = require("@sparticuz/chromium");
 
     const options = {
@@ -24,7 +27,8 @@ async function getPuppeteerBrowser() {
       options.executablePath = await chromium.executablePath();
     }
 
-    puppeteerBrowser = await puppeteer.launch(options);
+    // Set puppeteer-core as the executable for puppeteer-extra
+    puppeteerBrowser = await puppeteer.launch({ ...options, executablePath: options.executablePath });
   }
   return puppeteerBrowser;
 }
