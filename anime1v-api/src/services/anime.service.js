@@ -368,7 +368,76 @@ async function getEpisodeLinks(urlCandidate, includeMega, excludeServers) {
     throw new ApiError(400, "Proveedor no soportado");
   }
 
-  const result = await provider.service.getEpisodeLinks(urlCandidate, includeMega, excludeServers);
+  let result;
+  try {
+    result = await provider.service.getEpisodeLinks(urlCandidate, includeMega, excludeServers);
+  } catch (e) {
+    console.warn(`[Fallback] ${provider.id} falló para ${urlCandidate}:`, e.message);
+    result = { data: { variants: { SUB: 0, DUB: 0 } } };
+  }
+
+  // Cross-provider fallback if no servers found
+  if (!result?.data?.variants || (result.data.variants.SUB === 0 && result.data.variants.DUB === 0)) {
+    console.warn(`[Fallback] No se encontraron servidores en ${provider.id}. Intentando alternativas...`);
+    
+    // Extract slug and episode number from the URL candidate
+    let slug = "";
+    let epNum = "";
+    try {
+       const parts = new URL(urlCandidate).pathname.split('/').filter(Boolean);
+       if (parts[0] === 'ver' || parts[0] === 'episodio' || parts[0] === 'anime') {
+           const slugParts = parts[1].split('-');
+           // Handle episode number at the end
+           if (!isNaN(slugParts[slugParts.length - 1])) {
+              epNum = slugParts.pop();
+              slug = slugParts.join('-');
+           } else {
+              slug = parts[1];
+           }
+       } else {
+           // Fallback for jkanime style
+           slug = parts[0];
+           epNum = parts[1] || "";
+       }
+    } catch(e) {}
+    
+    // Sometimes slug on animeflv has "-episodio" attached or similar
+    slug = slug.replace(/-episodio$/, '');
+    
+    if (slug && epNum) {
+       const altUrls = [
+          { id: 'jkanime', url: `https://jkanime.net/${slug}/${epNum}/` },
+          { id: 'tioanime', url: `https://tioanime.com/ver/${slug}-${epNum}` },
+          { id: 'animeav1', url: `https://animeav1.com/ver/${slug}-${epNum}` }
+       ];
+       
+       for (const alt of altUrls) {
+          if (alt.id === provider.id) continue;
+          const altProvider = findProviderById(alt.id);
+          if (!altProvider || !altProvider.service.getEpisodeLinks) continue;
+          
+          try {
+             console.log(`[Fallback] Intentando con ${alt.id}: ${alt.url}`);
+             const altResult = await altProvider.service.getEpisodeLinks(alt.url, includeMega, excludeServers);
+             if (altResult?.data?.variants && (altResult.data.variants.SUB > 0 || altResult.data.variants.DUB > 0)) {
+                console.log(`[Fallback] Éxito con ${alt.id}`);
+                return {
+                   ...altResult,
+                   source: `${alt.id} (fallback de ${provider.id})`
+                };
+             }
+          } catch(e) {
+             console.warn(`[Fallback] ${alt.id} falló:`, e.message);
+          }
+       }
+    }
+  }
+
+  // If all fallbacks fail, or if it succeeded originally, return the result
+  if (!result || !result.data) {
+     throw new ApiError(500, "No se encontraron servidores en ningún proveedor.");
+  }
+
   return {
     ...result,
     source: result?.source || provider.id,
