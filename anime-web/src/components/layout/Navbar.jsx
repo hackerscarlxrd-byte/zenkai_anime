@@ -120,7 +120,7 @@ const Navbar = () => {
               {showSearch && (
                 <motion.form 
                   initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 300, opacity: 1 }}
+                  animate={{ width: 'min(300px, calc(100vw - 140px))', opacity: 1 }}
                   exit={{ width: 0, opacity: 0 }}
                   onSubmit={handleSearch}
                   className="absolute right-0 top-1/2 -translate-y-1/2"
