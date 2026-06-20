@@ -6,10 +6,6 @@ import {
 } from 'lucide-react';
 import PropTypes from 'prop-types';
 
-const INTRO_SHOW_AT = 5;
-const INTRO_HIDE_AT = 90;
-const FALLBACK_ENDING_SHOW_AT = 1260; // Typical 21:00 min
-
 const formatTime = (timeInSeconds) => {
 
   if (Number.isNaN(timeInSeconds)) return "00:00";
@@ -23,8 +19,7 @@ export default function CustomVideoPlayer({
   title, 
   poster, 
   onNextEpisode, 
-  hasNextEpisode,
-  onAutoNext,
+  onEnded,
   initialTime = 0,
   onTimeUpdateCallback
 }) {
@@ -127,11 +122,6 @@ export default function CustomVideoPlayer({
     }
   };
 
-  const handleSkipIntro = () => {
-    if (!videoRef.current) return;
-    videoRef.current.currentTime = Math.max(videoRef.current.currentTime, INTRO_HIDE_AT);
-  };
-
   // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -156,11 +146,6 @@ export default function CustomVideoPlayer({
     globalThis.addEventListener('keydown', handleKeyDown);
     return () => globalThis.removeEventListener('keydown', handleKeyDown);
   }, [isMuted, isFullscreen]);
-
-  // Visibility states for overlay buttons
-  const dynamicEndingShowAt = duration > 0 ? duration - 90 : FALLBACK_ENDING_SHOW_AT;
-  const showSkipIntro = currentTime >= INTRO_SHOW_AT && currentTime < INTRO_HIDE_AT;
-  const showSkipEnding = currentTime >= dynamicEndingShowAt && hasNextEpisode && currentTime < (duration > 0 ? duration - 10 : FALLBACK_ENDING_SHOW_AT + 80);
 
   return (
     <div 
@@ -189,10 +174,7 @@ export default function CustomVideoPlayer({
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={() => {
-          if (hasNextEpisode && !autoNextTriggeredRef.current) {
-            autoNextTriggeredRef.current = true;
-            onAutoNext && onAutoNext();
-          }
+          if (onEnded) onEnded();
         }}
         autoPlay
       >
@@ -206,35 +188,7 @@ export default function CustomVideoPlayer({
         </div>
       )}
 
-      {/* Skip Intro Button */}
-      <AnimatePresence>
-        {showSkipIntro && (
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            onClick={(e) => { e.stopPropagation(); handleSkipIntro(); }}
-            className="absolute bottom-24 right-6 z-30 flex items-center gap-2 bg-black/80 backdrop-blur-md border border-white/20 text-white font-black text-xs px-5 py-3 rounded-xl hover:bg-white hover:text-black transition-colors uppercase tracking-widest"
-          >
-            <FastForward size={16} /> Saltar Opening
-          </motion.button>
-        )}
-      </AnimatePresence>
 
-      {/* Skip Ending Button */}
-      <AnimatePresence>
-        {showSkipEnding && (
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            onClick={(e) => { e.stopPropagation(); onNextEpisode && onNextEpisode(); }}
-            className="absolute bottom-24 right-6 z-30 flex items-center gap-2 bg-primary/90 backdrop-blur-md border border-primary/50 text-white font-black text-xs px-5 py-3 rounded-xl hover:bg-primary transition-colors uppercase tracking-widest shadow-lg shadow-primary/30"
-          >
-            <SkipForward size={16} /> Siguiente Episodio
-          </motion.button>
-        )}
-      </AnimatePresence>
 
       {/* Controls Overlay */}
       <div 

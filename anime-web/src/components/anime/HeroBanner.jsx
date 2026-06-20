@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Info, Plus, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -196,4 +196,4 @@ HeroBanner.propTypes = {
   animes: PropTypes.array
 };
 
-export default HeroBanner;
+export default memo(HeroBanner);

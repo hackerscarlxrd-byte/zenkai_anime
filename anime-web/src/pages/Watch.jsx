@@ -13,12 +13,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { usePopupBlocker } from '../hooks/usePopupBlocker';
 import CustomVideoPlayer from '../components/video/CustomVideoPlayer';
+import { Capacitor } from '@capacitor/core';
+import { ScreenOrientation } from '@capacitor/screen-orientation';
 
-// ── Timing constants (seconds) ─────────────────────────────────────────────
-const INTRO_SHOW_AT   = 5;    // show "skip intro" after 5s
-const INTRO_HIDE_AT   = 90;   // hide after 90s (opening ends ~1:30)
-const ENDING_SHOW_AT  = 1260; // 21:00 (Typical ending start)
-const EPISODE_END_AT  = 1380; // 23:00 (Typical episode full end)
 const AUTONEXT_SECS   = 10;   // seconds for the countdown
 
 const isDirectVideoUrl = (url = '') => /\.(mp4|webm|ogg|m3u8)(?:[?#]|$)/i.test(url);
@@ -51,20 +48,41 @@ const Watch = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [id, episodeUrl]);
 
+  // ── Native Screen Orientation ─────────────────────────────────────────────
+  useEffect(() => {
+    const lockLandscape = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await ScreenOrientation.lock({ orientation: 'landscape' });
+        } catch (e) {
+          console.warn('ScreenOrientation lock failed:', e);
+        }
+      }
+    };
+    const unlockOrientation = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await ScreenOrientation.unlock();
+        } catch (e) {
+          console.warn('ScreenOrientation unlock failed:', e);
+        }
+      }
+    };
+
+    lockLandscape();
+    return () => {
+      unlockOrientation();
+    };
+  }, []);
+
   // ── UI State ──────────────────────────────────────────────────────────────
   const [language,       setLanguage]      = useState('sub');
   const [showEpList,     setShowEpList]    = useState(false);
   const [serverIdx,      setServerIdx]     = useState(0);
   const [iframeLoaded,   setIframeLoaded]  = useState(false);
 
-  // ── Timer-based playback state ────────────────────────────────────────────
-  const [elapsed,        setElapsed]       = useState(0);   // seconds since iframe loaded
-  const [showSkipIntro,  setShowSkipIntro] = useState(false);
-  const [skipIntroDone,  setSkipIntroDone] = useState(false);
-  const [showSkipEnding, setShowSkipEnding]= useState(false);
   const [autoNextCount,  setAutoNextCount] = useState(null); // null = inactive
 
-  const timerRef    = useRef(null);
   const autoNextRef = useRef(null);
 
   // ── Data fetching ─────────────────────────────────────────────────────────
@@ -113,10 +131,8 @@ const Watch = () => {
 
   const handleNavigateEp = useCallback((url) => {
     if (!url) return;
-    clearInterval(timerRef.current);
     clearTimeout(autoNextRef.current);
     setIframeLoaded(false);
-    setElapsed(0);
     setAutoNextCount(null);
     setServerIdx(0);
     navigate(`/watch/${id}?url=${encodeURIComponent(url)}&anime=${encodeURIComponent(animeUrl)}`);
@@ -173,61 +189,10 @@ const Watch = () => {
     }
   }, [episodeData, language]);
 
-  // ── Main playback timer ────────────────────────────────────────────────────
-  const startTimer = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setElapsed(0);
-    setSkipIntroDone(false);
-    setShowSkipIntro(false);
-    setShowSkipEnding(false);
-    setAutoNextCount(null);
-
-    timerRef.current = setInterval(() => {
-      setElapsed(prev => prev + 1);
-    }, 1000);
-  }, []);
-
   useEffect(() => {
     setIframeLoaded(false);
-    setElapsed(0);
-    setSkipIntroDone(false);
-    setShowSkipIntro(false);
-    setShowSkipEnding(false);
     setAutoNextCount(null);
   }, [episodeUrl, language, serverIdx]);
-
-  // Effect to handle server change or initial iframe load
-  useEffect(() => {
-    if (iframeLoaded && !directVideo) {
-      startTimer();
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [directVideo, iframeLoaded, startTimer]);
-
-  useEffect(() => {
-    // Drive UI off elapsed time
-    if (!iframeLoaded) return;
-
-    if (elapsed >= INTRO_SHOW_AT && elapsed < INTRO_HIDE_AT && !skipIntroDone) {
-      setShowSkipIntro(true);
-    } else {
-      setShowSkipIntro(false);
-    }
-
-    if (elapsed >= ENDING_SHOW_AT && elapsed < EPISODE_END_AT) {
-      setShowSkipEnding(true);
-    } else {
-      setShowSkipEnding(false);
-    }
-
-    if (elapsed >= EPISODE_END_AT && autoNextCount === null && nextEp) {
-      setAutoNextCount(AUTONEXT_SECS);
-    }
-  }, [autoNextCount, elapsed, iframeLoaded, nextEp, skipIntroDone]);
-
-  useEffect(() => () => clearInterval(timerRef.current), []);
 
   // ── Auto-next countdown ────────────────────────────────────────────────────
   useEffect(() => {
@@ -243,16 +208,6 @@ const Watch = () => {
   const cancelAutoNext = () => {
     clearTimeout(autoNextRef.current);
     setAutoNextCount(null);
-  };
-
-  const handleSkipIntro = () => {
-    setSkipIntroDone(true);
-    setShowSkipIntro(false);
-  };
-
-  const handleSkipEnding = () => {
-    setShowSkipEnding(false);
-    if (nextEp) handleNavigateEp(nextEp.url);
   };
 
   const handleIframeLoad = () => {
@@ -402,48 +357,7 @@ const Watch = () => {
                 );
               })()}
 
-              {/* ── SKIP INTRO — aparece como Netflix (5s → 90s) ──────────── */}
-              <AnimatePresence>
-                {showSkipIntro && !directVideo && (
-                  <motion.button
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.3 }}
-                    onClick={handleSkipIntro}
-                    className="absolute bottom-8 right-6 z-30 group flex items-center gap-3 bg-black/70 backdrop-blur-lg border border-white/25 text-white font-black text-xs px-6 py-3.5 rounded-xl hover:bg-white hover:text-black transition-all uppercase tracking-widest shadow-2xl"
-                  >
-                    <FastForward size={16} className="group-hover:scale-110 transition-transform" />
-                    Ocultar Opening
-                    {/* Barra de progreso Netflix-style */}
-                    <div className="absolute bottom-0 left-0 h-0.5 bg-white/30 rounded-b-xl w-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-white"
-                        initial={{ width: '0%' }}
-                        animate={{ width: '100%' }}
-                        transition={{ duration: INTRO_HIDE_AT - INTRO_SHOW_AT, ease: 'linear' }}
-                      />
-                    </div>
-                  </motion.button>
-                )}
-              </AnimatePresence>
 
-              {/* ── SKIP ENDING — aparece en los últimos 2 min ────────────── */}
-              <AnimatePresence>
-                {showSkipEnding && nextEp && !directVideo && (
-                  <motion.button
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.3 }}
-                    onClick={handleSkipEnding}
-                    className="absolute bottom-8 right-6 z-30 group flex items-center gap-3 bg-primary backdrop-blur-lg border border-primary/40 text-white font-black text-xs px-6 py-3.5 rounded-xl hover:bg-primary/80 transition-all uppercase tracking-widest shadow-2xl shadow-primary/30"
-                  >
-                    <SkipForward size={16} className="group-hover:scale-110 transition-transform" />
-                    Saltar Ending
-                  </motion.button>
-                )}
-              </AnimatePresence>
 
               {/* ── AUTO-NEXT OVERLAY — aparece al final del episodio ─────── */}
               <AnimatePresence>
