@@ -77,8 +77,9 @@ const Downloads = () => {
               </ul>
               
               <a
-                href="/downloads/zenkai-anime.apk"
-                download="ZenkaiAnime.apk"
+                href="https://www.upload-apk.com/cUkpleYOJxk6RuM"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full relative flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white font-bold text-lg overflow-hidden group/btn hover:shadow-[0_0_40px_rgba(var(--color-primary),0.4)] transition-all duration-300"
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out" />
