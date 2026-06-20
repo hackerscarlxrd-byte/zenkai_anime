@@ -77,7 +77,7 @@ const Downloads = () => {
               </ul>
               
               <a
-                href="https://www.upload-apk.com/cUkpleYOJxk6RuM"
+                href="https://www.upload-apk.com/scEHENe1FwUcSkD"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full relative flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white font-bold text-lg overflow-hidden group/btn hover:shadow-[0_0_40px_rgba(var(--color-primary),0.4)] transition-all duration-300"
