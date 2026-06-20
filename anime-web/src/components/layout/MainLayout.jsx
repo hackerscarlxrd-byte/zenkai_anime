@@ -117,9 +117,9 @@ const MainLayout = () => {
           { to: '/', icon: Home, label: 'Inicio' },
           { to: '/explorar', icon: Compass, label: 'Explorar' },
           { to: '/populares', icon: TrendingUp, label: 'Tendencias' },
-          { to: '/calendario', icon: Calendar, label: 'Calendario' },
-          { to: '/mi-lista', icon: Bookmark, label: 'Lista' },
-          { to: '/descargas', icon: Smartphone, label: 'Apps' },
+          { to: '/mi-lista', icon: BookmarkPlus, label: 'Favoritos' },
+          { to: '/historial', icon: Clock, label: 'Historial' },
+          { to: '/descargas', icon: Download, label: 'Descargar App' },
         ].map(({ to, icon: Icon, label }) => {
           const active = location.pathname === to;
           return (
