@@ -46,6 +46,11 @@ const Watch = () => {
   // ── Popup Blocker ─────────────────────────────────────────────────────────
   usePopupBlocker({ enabled: true });
 
+  // Scroll to top when entering page or changing episode
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [id, episodeUrl]);
+
   // ── UI State ──────────────────────────────────────────────────────────────
   const [language,       setLanguage]      = useState('sub');
   const [showEpList,     setShowEpList]    = useState(false);
