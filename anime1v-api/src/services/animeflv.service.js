@@ -7,7 +7,10 @@ const { ApiError } = require("../utils/api-error");
 let puppeteerBrowser = null;
 
 async function getPuppeteerBrowser() {
-  if (!puppeteerBrowser) {
+  if (!puppeteerBrowser || !puppeteerBrowser.isConnected()) {
+    if (puppeteerBrowser) {
+      try { await puppeteerBrowser.close(); } catch (e) {}
+    }
     const puppeteerCore = require("puppeteer-core");
     const { addExtra } = require("puppeteer-extra");
     const puppeteer = addExtra(puppeteerCore);
