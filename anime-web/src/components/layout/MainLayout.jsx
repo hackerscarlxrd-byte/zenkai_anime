@@ -4,6 +4,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import InteractiveBackdrop from './InteractiveBackdrop';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Capacitor } from '@capacitor/core';
 import PropTypes from 'prop-types';
 
 const SidebarLink = ({ to, icon: Icon, label, active }) => (
@@ -112,21 +113,21 @@ const MainLayout = () => {
 
       {/* Mobile Bottom Navigation Improved */}
       <nav className="lg:hidden fixed bottom-8 inset-x-6 h-20 bg-background-secondary/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] z-[100] shadow-2xl shadow-black/80 overflow-hidden">
-        <div className="flex items-center gap-2 h-full overflow-x-auto no-scrollbar snap-x snap-mandatory px-4">
+        <div className="flex items-center justify-start gap-1 h-full overflow-x-auto no-scrollbar snap-x snap-mandatory px-4">
         {[
           { to: '/', icon: Home, label: 'Inicio' },
           { to: '/explorar', icon: Compass, label: 'Explorar' },
           { to: '/populares', icon: TrendingUp, label: 'Tendencias' },
           { to: '/mi-lista', icon: BookmarkPlus, label: 'Favoritos' },
           { to: '/historial', icon: Clock, label: 'Historial' },
-          { to: '/descargas', icon: Download, label: 'Descargar App' },
+          ...(Capacitor.isNativePlatform() ? [] : [{ to: '/descargas', icon: Download, label: 'Descargar App' }])
         ].map(({ to, icon: Icon, label }) => {
           const active = location.pathname === to;
           return (
             <Link 
               key={to} 
               to={to} 
-              className={`relative flex flex-col items-center justify-center gap-1.5 transition-all duration-500 w-[60px] shrink-0 snap-center ${
+              className={`relative flex flex-col items-center justify-center gap-1.5 transition-all duration-500 w-auto min-w-[72px] px-2 shrink-0 snap-center ${
                 active ? 'text-primary' : 'text-white/40 hover:text-white'
               }`}
             >
