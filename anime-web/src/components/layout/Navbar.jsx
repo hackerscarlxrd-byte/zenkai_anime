@@ -81,8 +81,8 @@ const Navbar = () => {
       isScrolled ? 'py-4 bg-background-main/80 backdrop-blur-2xl border-b border-white/5 shadow-lg shadow-black/5' : 'py-6 bg-transparent'
     }`}>
       <div className="container flex items-center justify-between">
-        {/* Logo - Hide on mobile if search is open */}
-        <Link to="/" className={`flex items-center gap-3 group transition-all duration-300 ${showSearch ? 'hidden md:flex' : 'flex'}`}>
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3 group transition-all duration-300">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform overflow-hidden">
             <img src="/zenkai-logo.jpeg" alt="Zenkai Logo" className="w-full h-full object-cover" />
           </div>

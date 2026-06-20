@@ -82,9 +82,9 @@ const HeroBanner = ({ animes = [] }) => {
               transition={{ duration: 8 }}
               src={proxyImage(activeAnime.backdrop || activeAnime.image)} 
               alt={activeAnime.title}
-              onError={() => {
-                // Si la imagen falla, saltar al siguiente anime
-                handleNext();
+              onError={(e) => {
+                e.target.onerror = null; 
+                e.target.src = '/zenkai-logo.jpeg';
               }}
               className="w-full h-full object-cover opacity-60"
             />
