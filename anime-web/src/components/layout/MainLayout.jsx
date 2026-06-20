@@ -118,6 +118,7 @@ const MainLayout = () => {
           { to: '/populares', icon: TrendingUp, label: 'Tendencias' },
           { to: '/calendario', icon: Calendar, label: 'Calendario' },
           { to: '/mi-lista', icon: Bookmark, label: 'Lista' },
+          { to: '/descargas', icon: Smartphone, label: 'Apps' },
         ].map(({ to, icon: Icon, label }) => {
           const active = location.pathname === to;
           return (

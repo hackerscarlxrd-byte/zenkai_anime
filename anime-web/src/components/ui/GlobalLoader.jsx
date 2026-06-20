@@ -488,7 +488,7 @@ export const GlobalLoader = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2, duration: 0.5 }}
               >
-                Streaming Engine v2.0
+                Streaming Engine
               </motion.p>
             </div>
 
